@@ -11,11 +11,11 @@ export default function Register() {
                 <input value={username}
                     onChange={ev => setUsername(ev.target.value)}
                     type="text" placeholder="username"
-                    className="block w-full rounded-sm p-2 mb-2 border" />
+                    className="block w-full rounded-sm p-2 mb-2 border" required />
                 <input value={password}
                     onChange={ev => setPassword(ev.target.value)}
                     type="password" placeholder="password"
-                    className="block w-full rounded-sm p-2 mb-2" />
+                    className="block w-full rounded-sm p-2 mb-2" required />
                 <button className="bg-blue-500 text-white block w-full rounded-sm p-2">Register</button>
             </form>
         </div>
