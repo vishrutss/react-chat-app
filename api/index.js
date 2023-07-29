@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const ws = require("ws");
 require("dotenv").config();
 
 mongoose.connect(process.env.MONGO_DB_URL).catch((err) => {
@@ -50,7 +51,7 @@ app.post("/login", async (req, res) => {
         {},
         (err, token) => {
           if (err) throw err;
-          res.cookie("token", token).json({
+          res.cookie("token", token, { sameSite: "none", secure: true }).json({
             id: foundUser._id,
           });
         }
@@ -86,4 +87,26 @@ app.post("/register", async (req, res) => {
     res.status(500).json("error");
   }
 });
-app.listen(4000);
+const server = app.listen(4000);
+
+const ws_server = new ws.WebSocketServer({ server });
+
+ws_server.on("connection", (connection, req) => {
+  const cookies = req.headers.cookie;
+  if (cookies) {
+    const tokenCookieString = cookies
+      .split(";")
+      .find((str) => str.startsWith("token="));
+    if (tokenCookieString) {
+      const token = tokenCookieString.split("=")[1];
+      if (token) {
+        jwt.verify(token, jwtSecret, {}, (err, userData) => {
+          if (err) throw err;
+          const { userId, username } = userData;
+          connection.userId = userId;
+          connection.username = username;
+        });
+      }
+    }
+  }
+});
