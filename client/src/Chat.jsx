@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Avatar from "./Avatar";
+import Logo from "./Logo";
+import { UserContext } from "./UserContext";
 
 export default function Chat() {
   const [ws, setWs] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState({});
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const { username, id } = useContext(UserContext);
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
@@ -22,33 +26,54 @@ export default function Chat() {
       showOnline(messageData.online);
     }
   }
+
+  const onlineUsersExcludeMe = { ...onlineUsers };
+  delete onlineUsersExcludeMe[id];
   return (
     <div className="flex h-screen">
-      <div className="bg-white w-1/3 pl-4 pt-4">
-        <div className="text-blue-700 font-bold flex gap-2 mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+      <div className="bg-white w-1/3">
+        <Logo />
+        {Object.keys(onlineUsersExcludeMe).map((userId) => (
+          <div
+            key={userId}
+            onClick={() => setSelectedUserId(userId)}
+            className={
+              "border-b border-gray-100 flex items-center gap-2 cursor-pointer " +
+              (userId === selectedUserId ? "bg-blue-50" : "")
+            }
           >
-            <path
-              fillRule="evenodd"
-              d="M4.848 2.771A49.144 49.144 0 0112 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 01-3.476.383.39.39 0 00-.297.17l-2.755 4.133a.75.75 0 01-1.248 0l-2.755-4.133a.39.39 0 00-.297-.17 48.9 48.9 0 01-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97zM6.75 8.25a.75.75 0 01.75-.75h9a.75.75 0 010 1.5h-9a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5H12a.75.75 0 000-1.5H7.5z"
-              clipRule="evenodd"
-            />
-          </svg>
-          MERN-ChatApp
-        </div>
-        {Object.keys(onlineUsers).map((userId) => (
-          <div className="border-b border-gray-100 py-2 flex items-center gap-2 cursor-pointer">
-            <Avatar username={onlineUsers[userId]} userId={userId} />
-            <span className="text-gray-800">{onlineUsers[userId]}</span>
+            {userId === selectedUserId && (
+              <div className="w-1 bg-blue-500 h-12 rounded-r-md"></div>
+            )}
+            <div className="flex gap-2 py-2 pl-4 items-center">
+              <Avatar username={onlineUsers[userId]} userId={userId} />
+              <span className="text-gray-800">{onlineUsers[userId]}</span>
+            </div>
           </div>
         ))}
       </div>
       <div className="flex flex-col bg-blue-100 w-2/3 p-2">
-        <div className="flex-grow">messages with selected person</div>
+        <div className="flex-grow">
+          {!selectedUserId && (
+            <div className="flex h-full flex-grow items-center justify-center">
+              <div className="text-gray-400 text-xl flex gap-2 items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-4.28 9.22a.75.75 0 000 1.06l3 3a.75.75 0 101.06-1.06l-1.72-1.72h5.69a.75.75 0 000-1.5h-5.69l1.72-1.72a.75.75 0 00-1.06-1.06l-3 3z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Please Select a User
+              </div>
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
           <input
             type="text"
