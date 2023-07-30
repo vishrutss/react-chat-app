@@ -41,9 +41,9 @@ export default function Chat() {
           MERN-ChatApp
         </div>
         {Object.keys(onlineUsers).map((userId) => (
-          <div className="border-b border-gray-100 py-2 flex items-center gap-2">
-            <Avatar />
-            <span>{onlineUsers[userId]}</span>
+          <div className="border-b border-gray-100 py-2 flex items-center gap-2 cursor-pointer">
+            <Avatar username={onlineUsers[userId]} userId={userId} />
+            <span className="text-gray-800">{onlineUsers[userId]}</span>
           </div>
         ))}
       </div>
