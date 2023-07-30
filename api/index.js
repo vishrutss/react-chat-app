@@ -109,4 +109,14 @@ ws_server.on("connection", (connection, req) => {
       }
     }
   }
+  [...ws_server.clients].forEach((client) => {
+    client.send(
+      JSON.stringify({
+        online: [...ws_server.clients].map((c) => ({
+          userId: c.userId,
+          username: c.username,
+        })),
+      })
+    );
+  });
 });
