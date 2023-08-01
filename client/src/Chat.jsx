@@ -14,10 +14,16 @@ export default function Chat() {
   const { username, id } = useContext(UserContext);
   const divUnderMessages = useRef();
   useEffect(() => {
+    connectToWs();
+  }, []);
+
+  function connectToWs() {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
-  }, []);
+    ws.addEventListener("close", () => connectToWs());
+  }
+
   function showOnline(usersArray) {
     const users = {};
     usersArray.forEach(({ userId, username }) => {
@@ -63,7 +69,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (selectedUserId) {
-      axios.get("/messages/"+selectedUserId).then()
+      axios.get("/messages/" + selectedUserId).then();
     }
   }, [selectedUserId]);
 
