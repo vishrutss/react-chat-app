@@ -74,13 +74,15 @@ export default function Chat() {
 
   useEffect(() => {
     if (selectedUserId) {
-      axios.get("/messages/" + selectedUserId).then();
+      axios.get("/messages/" + selectedUserId).then((res) => {
+        setMessages(res.data);
+      });
     }
   }, [selectedUserId]);
 
   const onlineUsersExcludeMe = { ...onlineUsers };
   delete onlineUsersExcludeMe[id];
-  const messagesWithoutDuplicates = uniqBy(messages, "id");
+  const messagesWithoutDuplicates = uniqBy(messages, "_id");
   return (
     <div className="flex h-screen">
       <div className="bg-white w-1/3">
