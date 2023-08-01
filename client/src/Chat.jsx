@@ -21,7 +21,12 @@ export default function Chat() {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
-    ws.addEventListener("close", () => connectToWs());
+    ws.addEventListener("close", () => {
+      setTimeout(() => {
+        console.log("reconnecting...");
+        connectToWs();
+      }, 1000);
+    });
   }
 
   function showOnline(usersArray) {
