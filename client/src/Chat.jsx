@@ -100,7 +100,11 @@ export default function Chat() {
               <div className="w-1 bg-blue-500 h-12 rounded-r-md"></div>
             )}
             <div className="flex gap-2 py-2 pl-4 items-center">
-              <Avatar username={onlineUsers[userId]} userId={userId} />
+              <Avatar
+                online={true}
+                username={onlineUsers[userId]}
+                userId={userId}
+              />
               <span className="text-gray-800">{onlineUsers[userId]}</span>
             </div>
           </div>

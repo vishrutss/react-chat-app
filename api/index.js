@@ -63,8 +63,6 @@ app.get("/profile", (req, res) => {
       if (err) throw err;
       res.json(userData);
     });
-  } else {
-    res.status(401).json("no token");
   }
 });
 
