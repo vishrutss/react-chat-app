@@ -67,6 +67,7 @@ export default function Chat() {
         sender: id,
         recipient: selectedUserId,
         _id: Date.now(),
+        createdAt: new Date().toLocaleDateString("en-US", options),
       },
     ]);
   }
@@ -167,12 +168,13 @@ export default function Chat() {
                       }
                     >
                       {message.text}
-                      {/*TODO: Date is not displayed immediately after sending a message. Need to fix*/}
+                      {/*TODO: Date is not displayed immediately after sending a message for the recipient. Need to fix*/}
                       <div className="text-xs text-gray-300 pt-2">
                         {new Date(message.createdAt).toLocaleDateString(
                           "en-US",
                           options
                         )}
+                        {console.log(message)}
                       </div>
                     </div>
                   </div>

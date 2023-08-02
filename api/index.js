@@ -8,6 +8,12 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const ws = require("ws");
 require("dotenv").config();
+var options = {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+};
 
 mongoose.connect(process.env.MONGO_DB_URL).catch((err) => {
   if (err) throw err;
@@ -161,6 +167,7 @@ ws_server.on("connection", (connection, req) => {
               sender: connection.userId,
               recipient,
               _id: messageDoc._id,
+              createdAt: new Date().toLocaleDateString("en-US", options),
             })
           )
         );
