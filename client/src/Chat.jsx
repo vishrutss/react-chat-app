@@ -167,7 +167,7 @@ export default function Chat() {
                       }
                     >
                       {message.text}
-                      {/*TODO: Date is not displayed immendiately after sending a message. Need to fix*/}
+                      {/*TODO: Date is not displayed immediately after sending a message. Need to fix*/}
                       <div className="text-xs text-gray-300 pt-2">
                         {new Date(message.createdAt).toLocaleDateString(
                           "en-US",
