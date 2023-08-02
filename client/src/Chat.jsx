@@ -1,16 +1,22 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import Avatar from "./Avatar";
 import Logo from "./Logo";
 import { UserContext } from "./UserContext";
 import { uniqBy } from "lodash";
 import axios from "axios";
-
+import Contact from "./Contact";
+var options = {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+};
 export default function Chat() {
   const [ws, setWs] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [offlineUsers, setOfflineUsers] = useState({});
   const { username, id } = useContext(UserContext);
   const divUnderMessages = useRef();
   useEffect(() => {
@@ -73,6 +79,19 @@ export default function Chat() {
   }, [messages]);
 
   useEffect(() => {
+    axios.get("/users").then((res) => {
+      const offlineUsersArr = res.data
+        .filter((p) => p._id !== id)
+        .filter((p) => !Object.keys(onlineUsers).includes(p._id));
+      const offlineUsers = {};
+      offlineUsersArr.forEach((p) => {
+        offlineUsers[p._id] = p;
+      });
+      setOfflineUsers(offlineUsers);
+    });
+  }, [onlineUsers]);
+
+  useEffect(() => {
     if (selectedUserId) {
       axios.get("/messages/" + selectedUserId).then((res) => {
         setMessages(res.data);
@@ -88,26 +107,24 @@ export default function Chat() {
       <div className="bg-white w-1/3">
         <Logo />
         {Object.keys(onlineUsersExcludeMe).map((userId) => (
-          <div
+          <Contact
             key={userId}
+            id={userId}
+            online={true}
+            username={onlineUsersExcludeMe[userId]}
             onClick={() => setSelectedUserId(userId)}
-            className={
-              "border-b border-gray-100 flex items-center gap-2 cursor-pointer " +
-              (userId === selectedUserId ? "bg-blue-50" : "")
-            }
-          >
-            {userId === selectedUserId && (
-              <div className="w-1 bg-blue-500 h-12 rounded-r-md"></div>
-            )}
-            <div className="flex gap-2 py-2 pl-4 items-center">
-              <Avatar
-                online={true}
-                username={onlineUsers[userId]}
-                userId={userId}
-              />
-              <span className="text-gray-800">{onlineUsers[userId]}</span>
-            </div>
-          </div>
+            selected={userId === selectedUserId}
+          />
+        ))}
+        {Object.keys(offlineUsers).map((userId) => (
+          <Contact
+            key={userId}
+            id={userId}
+            online={false}
+            username={offlineUsers[userId].username}
+            onClick={() => setSelectedUserId(userId)}
+            selected={userId === selectedUserId}
+          />
         ))}
       </div>
       <div className="flex flex-col bg-blue-100 w-2/3 p-2">
@@ -150,6 +167,13 @@ export default function Chat() {
                       }
                     >
                       {message.text}
+                      {/*TODO: Date is not displayed immendiately after sending a message. Need to fix*/}
+                      <div className="text-xs text-gray-300 pt-2">
+                        {new Date(message.createdAt).toLocaleDateString(
+                          "en-US",
+                          options
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
