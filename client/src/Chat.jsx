@@ -19,21 +19,30 @@ export default function Chat() {
   const [offlineUsers, setOfflineUsers] = useState({});
   const { username, id, setId, setUsername } = useContext(UserContext);
   const divUnderMessages = useRef();
-  useEffect(() => {
-    connectToWs();
-  }, []);
 
-  function connectToWs() {
-    const ws = new WebSocket("ws://localhost:4000");
-    setWs(ws);
-    ws.addEventListener("message", handleMessage);
-    ws.addEventListener("close", () => {
-      setTimeout(() => {
-        console.log("reconnecting...");
-        connectToWs();
-      }, 1000);
-    });
-  }
+  useEffect(() => {
+    function connectToWs() {
+      const ws = new WebSocket("ws://localhost:4000");
+      setWs(ws);
+      ws.addEventListener("message", handleMessage);
+      ws.addEventListener("close", () => {
+        setTimeout(() => {
+          console.log("reconnecting...");
+          connectToWs();
+        }, 1000);
+      });
+    }
+
+    connectToWs();
+
+    // Cleanup function to remove event listener
+    return () => {
+      if (ws) {
+        ws.removeEventListener("message", handleMessage);
+        ws.removeEventListener("close");
+      }
+    };
+  }, []);
 
   function showOnline(usersArray) {
     const users = {};
@@ -47,7 +56,9 @@ export default function Chat() {
     if ("online" in messageData) {
       showOnline(messageData.online);
     } else if ("text" in messageData) {
-      setMessages((prev) => [...prev, { ...messageData }]);
+      if (messageData.sender === selectedUserId) {
+        setMessages((prev) => [...prev, { ...messageData }]);
+      }
     }
   }
 
@@ -225,6 +236,7 @@ export default function Chat() {
                           <a
                             className="border-b flex items-center gap-1"
                             target="_blank"
+                            rel="noreferrer"
                             href={
                               axios.defaults.baseURL +
                               "/uploads/" +
