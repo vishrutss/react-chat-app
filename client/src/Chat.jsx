@@ -59,25 +59,44 @@ export default function Chat() {
     });
   }
 
-  function sendMessage(ev) {
-    ev.preventDefault();
+  function sendMessage(ev, file = null) {
+    if (ev) ev.preventDefault();
     ws.send(
       JSON.stringify({
         recipient: selectedUserId,
         text: newMessageText,
+        file,
       })
     );
-    setNewMessageText("");
-    setMessages((prev) => [
-      ...prev,
-      {
-        text: newMessageText,
-        sender: id,
-        recipient: selectedUserId,
-        _id: Date.now(),
-        createdAt: new Date().toLocaleDateString("en-US", options),
-      },
-    ]);
+
+    if (file) {
+      axios.get("/messages/" + selectedUserId).then((res) => {
+        setMessages(res.data);
+      });
+    } else {
+      setNewMessageText("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: newMessageText,
+          sender: id,
+          recipient: selectedUserId,
+          _id: Date.now(),
+          createdAt: new Date().toLocaleDateString("en-US", options),
+        },
+      ]);
+    }
+  }
+
+  function sendFile(ev) {
+    const reader = new FileReader();
+    reader.readAsDataURL(ev.target.files[0]);
+    reader.onload = () => {
+      sendMessage(null, {
+        name: ev.target.files[0].name,
+        data: reader.result,
+      });
+    };
   }
 
   useEffect(() => {
@@ -201,6 +220,35 @@ export default function Chat() {
                       }
                     >
                       {message.text}
+                      {message.file && (
+                        <div>
+                          <a
+                            className="border-b flex items-center gap-1"
+                            target="_blank"
+                            href={
+                              axios.defaults.baseURL +
+                              "/uploads/" +
+                              message.file
+                            }
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
+                              />
+                            </svg>
+                            {message.file}
+                          </a>
+                        </div>
+                      )}
                       <div className="text-xs text-gray-300 pt-2">
                         {new Date(message.createdAt).toLocaleDateString(
                           "en-US",
@@ -225,9 +273,26 @@ export default function Chat() {
               placeholder="Type message here"
               className="bg-white flex-grow border rounded-sm p-2"
             />
+            <label className="bg-blue-200 p-2 text-gray-600 cursor-pointer rounded-md border border-blue-200">
+              <input type="file" className="hidden" onChange={sendFile} />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
+                />
+              </svg>
+            </label>
             <button
               type="submit"
-              className="bg-blue-500 p-2 text-white rounded-sm"
+              className="bg-blue-500 p-2 text-white rounded-md"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
