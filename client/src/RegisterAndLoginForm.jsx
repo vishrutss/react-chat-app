@@ -7,14 +7,23 @@ export default function RegisterAndLoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoginOrRegister, setIsLoginOrRegister] = useState("login");
+  const [error, setError] = useState(null);
   const { setUsername: setLoggedInUsername, setId } = useContext(UserContext);
 
   async function handleSubmit(ev) {
     ev.preventDefault();
     const url = isLoginOrRegister === "register" ? "/register" : "/login";
-    const { data } = await axios.post(url, { username, password });
-    setLoggedInUsername(username);
-    setId(data.id);
+    const error =
+      isLoginOrRegister === "register"
+        ? "This account already exists"
+        : "Incorrect username or password";
+    try {
+      const { data } = await axios.post(url, { username, password });
+      setLoggedInUsername(username);
+      setId(data.id);
+    } catch (err) {
+      setError(error);
+    }
   }
 
   return (
@@ -39,6 +48,9 @@ export default function RegisterAndLoginForm() {
           className="block w-full rounded-sm p-2 mb-2"
           required
         />
+        <div className="flex items-center justify-center pb-2">
+          {error && <p className="text-red-500">{error}</p>}
+        </div>
         <button className="bg-blue-500 text-white block w-full rounded-sm p-2">
           {isLoginOrRegister === "register" ? "Register" : "Login"}
         </button>

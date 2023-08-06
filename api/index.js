@@ -97,6 +97,9 @@ app.post("/login", async (req, res) => {
       );
     }
   }
+  else {
+    res.status(400).json({ error: "Username or password incorrect" });
+  }
 });
 
 app.post("/logout", (req, res) => {
@@ -126,8 +129,7 @@ app.post("/register", async (req, res) => {
       }
     );
   } catch (error) {
-    if (error) throw error;
-    res.status(500).json("error");
+    res.status(400).json({ error });
   }
 });
 const server = app.listen(4000);
