@@ -1,3 +1,14 @@
+# Screenshots
+
+## Login Page
+![Alt text](screenshots/login.png)
+
+## Register Page
+![Alt text](screenshots/register.png)
+
+## Logged in user
+![Alt text](screenshots/logged_in.png)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
